@@ -1,5 +1,5 @@
 --==============================
---2. tabulu izveide
+--1. tabulu izveide
 --==============================
 
 --datubaze- organizeta datu kratuve
@@ -18,7 +18,7 @@
     --DQL: SELECT - lasa datus.
 
     --SQL (Structured Query Language)- strukturēta vaicājuma valoda.
-    --phpMyAdmin - ir TĪMEKĻA PĀRVALDĪBAS RĪKS, ARN KURU VAR STRADAT  MySQL/MAria DB datubāzes.
+    --phpMyAdmin - ir TĪMEKĻA PĀRVALDĪBAS RĪKS, AR KURU VAR STRADAT  MySQL/MAria DB datubāzes.
     --phpMyAdmin NAV atsevišķā datubāze un NAV SQL valoda.
 
     -- CREATE DATUBASE- izvedo datubazi.
@@ -117,7 +117,192 @@ SHOW CREATE TABLE skoleni;
 
     --INSERT INTO- pievieno jaunu/US ierakstus tabulā.
     --AUTO_INCREMENT- LAUKAM id VERTIBA NAV NORADĪTA.
-    INSERT INTO grupas (nosaukums) VALUES
-    ('1. grupa'),
-    ('2. grupa'),
-    ('3. grupa');
+
+     INSERT INTO grupas (nosaukums) VALUES
+    ('401'),
+    ('402'),
+    ('403'),
+    ('404');
+
+INSERT INTO skoleni (vards,	    uzvards,    vecums, epasts,                 grupas_id,      iestajas)       VALUES
+                    ('Anna',    'Bērziņa',  18,     'anna@example.test',    1,              '2026-09-01'),
+                    ('Jānis',   'Ozols',    19,     'janis@example.test',   1,              '2026-09-01'),
+                    ('Līga',    'Kalniņa',  17,     NULL,                   1,              '2026-09-02'),
+                    ('Martiņš', 'Liepa',    20,     'martins@example.test', 2,              '2026-09-01'),
+                    ('Elīna',   'Liepa',    18,     'elina@example.test',   2,              '2026-09-02'),
+                    ('Roberts', 'Siliņa',   19,     NULL,                   3,              '2026-09-01'),
+                    ('Marta',   'Krūmiņa',  17,     'marta@example.test',   3,              '2026-09-01'),
+                    ('Kārlis',  'Vītols',   21,     'karlis@example.test',  3,              '2026-09-03'),
+                    ('Paula',   'Egle',     18,     'paula@example.test',   NULL,           '2026-09-01')
+
+                    
+INSERT INTO skoleni (vards,	    uzvards,    vecums, epasts,                 grupas_id,      iestajas)       VALUES
+                    ('Dace',    'Lapa',     18,     null,                   1,              '2026-09-03');
+
+-- =============================================================
+-- 4. Datu apskate - SELECT (CRUD: READ)
+-- =============================================================
+
+-- SELECT - iegūst datus no tabulas.
+-- Zveigznīte (*) niozīme "visas kolaonas"
+SELECT * FROM skoleni;
+
+-- Atlasam konkrētus datus
+SELECT vards, uzvards, vecums FROM skoleni;
+
+-- AS - piesķir rezultāta kolonnai citu, lasāmāku nosaukumu. (Tas NEMAINA īsto kolonnas nosaukumu datubāzē).
+SELECT vards AS Vards, uzvards AS Uzvards
+FROM skoleni;
+
+-- DISTINCT - atgriež tikai atšķirīgās (neatkārtojošās) vērtības.
+SELECT DISTINCT vecums FROM skoleni;
+
+-- Apskatam grupas
+SELECT * FROM grupas;
+
+-- =============================================================
+-- 5. Datu filtrēšana - WHERE
+-- =============================================================
+-- WHERE - atlasa tikai tos ierakstus, kas atbild nosacijumiem.
+-- Salīdzināšanas operātori: =, <>, >, <, >=, <=.
+SELECT * FROM skoleni WHERE vecums = 18;
+SELECT * FROM skoleni WHERE vecums > 18;
+SELECT * FROM skoleni WHERE vecums <> 18;
+
+-- AND - jaizpildās ABIEM nosacijumiem.
+SELECT * FROM skoleni
+WHERE vecums >= 18 AND grupas_id = 1;
+
+-- OR - pietiek, ja izpildās VISMAZ VIENS nosacijums.
+SELECT * FROM skoleni
+WHERE grupas_id = 1 OR grupas_id = 2;
+
+-- NOT - noliedz nosacijumu.
+SELECT * FROM skoleni
+WHERE NOT (vecums < 18);
+
+-- BETWEEN - diapazons, ieskaitot abas robežvērtības.
+SELECT * FROM skoleni
+WHERE vecums BETWEEN 18 AND 20;
+
+-- IN - vērtība atbils kādām elementam dotajā sarakstā
+SELECT * FROM skoleni
+WHERE grupas_id IN (1, 3)
+
+-- LIKE - teksta meklēšana pēc parauga.
+-- % nozīmē jubkādu rastzīmju skaitu (arī neviena)
+-- _ nozīmē tieši vienu rakstzīmi.
+SELECT * FROM skoleni WHERE vards LIKE 'M%';
+SELECT * FROM skoleni WHERE uzvards LIKE '%a';
+SELECT * FROM skoleni WHERE uzvards LIKE '%p_';
+-- NULL nozīmē, ka kolonnas vērtība nav zināma vai nav norādīta.
+--NULL salīdzināsanai lieto IS, nevis =NULL.
+SELECT * FROM skoleni WHERE epasts IS NULL;
+SELECT * FROM skoleni WHERE epasts IS NOT NULL;
+
+--==============================================================
+-- 6. rezultātu kārtošana - ORDER BY/ LIMIT / OFFSET
+--==============================================================
+-- ORDER BY - SAKARTOT ATLASĪTĀS RINDAS.
+-- ASC - augošā secībā (pēc noklusējuma)
+-- DESC - dilstošā secībā
+SELECT vards, uzvards, vecums
+FROM skoleni
+ORDER BY vecums ASC;
+
+SELECT * FROM skoleni ORDER BY vecums ASC;
+-- DESC - dilstošā secībā
+SELECT * FROM skoleni ORDER BY vecums DESC;
+-- var sakartot pēc vairākiem kritērijiem
+SELECT * FROM skoleni ORDER BY vecums ASC, uzvards DESC;
+--LIMIT - parāda ierobežoto rindu skaitu.
+--ierobežo atgriežamo rindu skaitu.
+--ieteicams norādīt ar ORDER BY,
+-- lai iegūtu paredzamu rezultātu.
+SELECT * FROM skoleni
+ORDER BY id ASC
+ LIMIT 3; 
+--OFFSET - izlaist noteiktu rindu skaitu 
+--no rezultāta.(piem. lapošanai).
+-- Šeit izlaiž 3 pirmās rindas un parāda nakamās 3
+SELECT * FROM skoleni
+ORDER BY id ASC
+ LIMIT 3 OFFSET 3;
+--==============================================================
+--7. datu atjaunošana - UPDATE (CRUD: UPDATE)
+--==============================================================
+UPDATE - maina esošos ierakstus tabulā.
+SET - norāda, kuras kolonnas vērtības jāmaina.
+WHERE - nosaka, kuri ieraksti jāmaina.    
+--svarīgi, ja nav norādīts WHERE, tiks mainīti VISI ieraksti tabulā.
+--piemērs: labojam tiesi skolēna ar id = 6.
+SELECT * FROM skoleni WHERE id = 6;
+UPDATE skoleni
+SET UZVARDS = 'SILIŅŠ'
+WHERE id = 6;
+-- vienā UPDATE komandā drīkst labot arīvairākus laukus.
+UPDATE skoleni
+SET epasts = 'dace@example.test', grupas_id = 2
+WHERE id = 10;
+--rezultāta parbaude:
+SELECT * FROM skoleni WHERE id = 10;
+
+-- BĪSTAMS PIEMĒRS: 
+-- Sī komanda visiem skolniekiem nomainītu vecumu uz 18.!
+UPDATE skoleni SET vecums = 18;
+--==============================================================
+--8. datu dzēšana - DELETE (CRUD: DELETE)
+--==============================================================
+--DELETE FROM - dzēš vairākus ierakstus no tabulas.
+--WHERE - nosaka, kuri ieraksti jādzēš.
+
+--uzmanību !!! var tikt izdzēsti visi ieraksti,
+-- ja nav norādīts WHERE.
+DELETE FROM skoleni WHERE id = 6;
+--pārbaude:
+SELECT * FROM skoleni WHERE id = 6;
+--BĪSTAMAIS PIEMĒRS:
+--Šī komanda izdzēstu VISUS skolēnus no tabulas.
+DELETE FROM skoleni;
+
+--==============================================================
+--9. tabulas struktūras maiņa- ALTER TABLE
+--==============================================================
+ --ALTER TABLE maina tabulas KOLONNAS vai IEROBEŽOJUMUS, 
+ --nevis tikai datus.
+--  ADD - pievieno jaunu kolonnu
+ALTER TABLE skoleni 
+ADD COLUMN telefons VARCHAR(20); NULL;
+-- ievietojam vērtību jaunajā kolonnā
+UPDATE skoleni
+SET telefons = '+371 12345678'
+WHERE id = 1;
+
+-- CHANGE KOLUMN - PARDEVĒ KOLONNU (JĀNORADA ARĪ DATU TIPS)
+ALTER TABLE skoleni
+CHANGE COLUMN telefons talrunis VARCHAR(20) NULL;
+
+-- MODIFY COLUMN - maina kolonnas datu tipu vai 
+--ierobežojumus (atribūti).
+ALTER TABLE skoleni
+MODIFY COLUMN talrunis VARCHAR(20) NULL;
+
+--COMENT- SAGLABĀ LAUKKA DEFINICIJAS SKAIDROJUMU.
+ALTER TABLE skoleni
+MODIFY COLUMN talrunis VARCHAR(20) 
+NULL COMMENT 'Skolēna tālruņa numurs';
+--PAGAIDU COLONNA
+ALTER TABLE skoleni
+ADD COLUMN ABC VARCHAR(50) NULL
+--DROP COLUMN - dzēš kolonnu no tabulas. UN VISAS TAJĀ GLABATAS VĒRTĪBAS.
+ALTER TABLE skoleni
+DROP COLUMN ABC
+--!!! KOLOMMAS VAI TABULAS NEVAR IZDZEST, 
+--JA TAS IR PIESAISTITAS ATSLEGAI CITAI TABULAI.!!!
+
+--RENAME COLUMN- pardēve kolonnu MySQL 8.0+ 
+--vai MariaDB 10.5+ vidē.
+ALTER TABLE skoleni RENAME COLUMN talrunis TO ABC
+--RENAME TABLE - MAINA TABULAS NAOSAUKUMU
+RENAME TABLE skoleni TO audzekni;
+RENAME TABLE audzekni TO skoleni;
