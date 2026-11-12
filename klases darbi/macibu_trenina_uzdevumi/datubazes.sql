@@ -409,3 +409,56 @@ CHANGE COLUMN nosaukus nosaukums VARCHAR (20) NULL;
   INNER JOIN GRUPAS AS G ON SK.GRUPAS_ID = G.ID
   --ISLAICIGI PARVERS GAROS NOSAUKUMUS SAISINAJUMOS.
   -- VAR IZMANTOT JEBKADU SAISINAJUMU.
+
+  --LEFT JOIN parādīs visus skolēnus,
+  -- arī tos, kuriem nav grupas.
+  SELECT s.vards, s.uzvards, g.nosacijums AS grupa.
+  FROM skoleni AS s
+  LEFT JOIN grupas AS g ON  s.grupas_id = g.id;
+
+  --RIGHT JOIN parārīs visas grupas, arī grupu 404 bez skoleniem.
+   SELECT s.vards, s.uzvards, g.nosacijums AS grupa.
+  FROM skoleni AS s
+ RIGHT JOIN grupas AS g ON  s.grupas_id = g.id;
+ -- DIVI JOIN vienā vaicājuma.
+ SELECT s.vards, s.uzvards, AS Uzvards g.nosacijums AS grupa,
+ a.prieksmets, a.atzime
+ FROM skoleni AS s
+ LEFT JOIN grupas AS g ON  s.grupas_id = g.id;
+ LEFT JOIN atzimes AS a ON a.skolena_id = s.id
+ ORDER BY s.id, a.datums;
+
+ --=================================================
+ --12. DATU APKOPOŠANA- COUNT, SUM, AVG, 
+--MIN, MAX, GROUP BY,M HAVING.
+ --=================================================
+SELECT COUNT (*) AS Skolenu_skaits FROM skoleni
+--caount(epasts) -skaita tikai rindas,. kuras epasts nav NULL.
+SELECT COUNT(epasts) AS SKOLENI_AR_EPASTU FROM SKOLENI;
+
+--MIN/MAX - MAZAKA/ LIELĀKĀ VĒRTĪBA.
+SELECT MIN (VECUMS) AS JAUNAKAIS, MAX (VECUMS) AS VECAKAIS
+FROM SKOLENI;
+
+--AVG- VIDĒJĀ VERTIBA; SUM -VĒRTĪBU SUMMA.
+SELECT AVG (ATZĪME) AS VIDĒJĀ_ATZĪME,
+ SUM(ATZĪME) AS ATZĪMJU_SUMMA
+ FROM ATZĪMES;
+
+ --GROUP BY - sadala rezultātu grupās,
+ --lai katrai veiktu aprēķinus.
+ SELECT grupas_id, AS 'GRUPAS ID', COUNT(*) AS 'skolēnu skaits' 
+ from  skoleni
+ group by grupas_id;
+
+ --grupas nosaukums+ skolenu skaits. (IESKAITOT TUKŠU GRUPU).
+ --COUNT (s.id), nevis COUNT(*),
+ --LEFT JOIN tukšai grupai atgriez NULL skolēnu.
+  SELECT g.nosaukums, AS 'Grupa', COUNT(s.id) AS 'Skolēnu skaits' 
+ FROM grupas as g
+ LEFT JOIN skoleni AS s ON s.grupas_id=g.id
+ group by g.id, g.nosaukums
+ ORDER BY g.nosaukums;
+
+--HAVING- atlasa GRUPAS pēc apkopošanas rezultāta.
+--WHERE filtrē  rindas pirms grupēšanas, HAVING pēc tās.
