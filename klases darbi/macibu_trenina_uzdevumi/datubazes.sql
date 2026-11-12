@@ -306,3 +306,106 @@ ALTER TABLE skoleni RENAME COLUMN talrunis TO ABC
 --RENAME TABLE - MAINA TABULAS NAOSAUKUMU
 RENAME TABLE skoleni TO audzekni;
 RENAME TABLE audzekni TO skoleni;
+
+--==================================================
+--10. tabulu sasaiste, primary key, unique, default
+--==================================================
+-- primary key (pk)- unikali identifice tabulas rindu.
+--parasti tas ir ID 
+--mūsu  tabula skolēni.id ir pk, un grupas.id ir pk.
+-- piweraksta skoleni.id, pirmais skoleni ir tabulas nosaukums
+-- un id ir tas tabulas kolonnas nosaukums.
+
+--FOREIGE KEY (FK)- AREJĀ ATSLĒGA, 
+--KURA NORĀDA UZ CITAS TABULAS (PK)
+--skoleni.grupas_id -> grupas.id
+--piemers: grupas_id = 2, ka skolens pieder grupai ar id =2
+
+-- UNIQUE - neļauj atkārtotas nosaukumu vērtības,
+-- tās kolonnas ietvaros.
+
+-- DEFAULT- automatiska vertība, ja to nenorāda.
+-- piemēram: CURRENT_TIMESTAMP.
+
+-- ALTER TABLE skoleni
+ADD CONSTRAINT fk_skoleni_grupas
+FOREIGN KEY(grupas_id)
+REFERENCES grupas (id)
+ON DELETE RESTRICT
+ON UPDATE CASCADE;
+
+--ON DELETE RESTRICT- liedz izdzēst grupu, kura vēl ir (skoleni).
+--ON UPDATE CASCADE - mainot grupas PK, FK vērtības tiktu pielāgotas.
+-- parasti PK mainīt nav ieteicams.
+
+CREATE TABLE atzimes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    skolen_id INT NOT NULL,
+    prieksmets VARCHAR (60) NOT NULL,
+    atzime TINYINT NOT NULL,
+    datums DATE NOT NULL,
+    CONSTRAINT fk_atzimes_skoleni
+        FOREIGN KEY (skolena_id)
+        REFERENCES skoleni (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+--ON DELETE CASCADE - ja izdzesis (skoleni), 
+--automatiski izdzesisies ari (atzime).
+--šo noteikumun drīks lietot tikai tad, 
+--ja šaāda rīcība atbilst sistemas prasībam.
+--realās sistemās bieži vajag arhivēšanu, nevis dzēšanu.
+
+INSERT INTO atzimes (skolena_id, prieksmets, atzime, datums,)
+VALUES
+     (1, 'sql', 9, '2026-10-01'),
+     (1, 'sql', 10, '2026-10-01'),
+     (2, 'sql', 9, '2026-10-01'),
+     (2, 'sql', 9, '2026-10-01'),
+     (3, 'sql', 9, '2026-10-01'),
+     (4, 'sql', 9, '2026-10-01'),
+     (5, 'sql', 9, '2026-10-01'),
+     (6, 'sql', 9, '2026-10-01'),
+     (7, 'sql', 9, '2026-10-01'),
+     (8, 'sql', 9, '2026-10-01')
+
+SELECT * FROM atzimes;
+--bistamais piemers: 
+ INSERT INTO atzimes (skolena_id, prieksmets, atzime, datums,)
+VALUES
+     (999, 'sql', 9, '2026-10-01')
+     --pieprasit skolena id, kurs neeksiste skolena tabula.
+-- DELITE FROM grupas WHERE ID = 1;
+--JO NEVAR IZDZEST GRUPU, KURAI PIESDAISTITI SKOLENI (CITI DATI TABULA).
+--=============================================
+--11. JOIN- DATU IEGŪŠANA NO VAIRĀKAM TABULĀM,
+--IZMANTOJKOT SAISTĪTOS LAUKUS.
+--=============================================
+-- JOIN SASAISTA RINDAS NO VAIRAKAM TABULĀM,
+--IZMANTOJOT SASAISTĪTOS LAUKUS.
+-- AS - PIELIETOJAM, LAI DABŪTU ĪSĀKUS NOSAUKUMUS (PSEIDONĪMI).
+
+--INNER JOIN- PARADA TIKAI TOS IERAKSTUS,
+-- KURIEM IR ATBILSTĪBA ABAS TABULĀS.
+
+ALTER TABLE grupas
+CHANGE COLUMN nosaukus nosaukums VARCHAR (20) NULL;
+-- IZLABOJAM TABULAS NOSAUKUMA KLUDU
+
+ SELECT skoleni.vards, skoleni.uzvards, grupas.nosaukums
+ FROM skoleni
+ INNER JOIN grupas ON skoleni.grupas_id = grupas.id
+  -- AR AS
+  SELECT S.VARDS, S.UZVARDS, G.NOSAUKUMS AS GRUPA
+  FROM SKOLENI AS S
+  INNER JOIN GRUPAS AS G ON S.GRUPAS_ID = G.ID
+  -- STARDA ARI AR CAPS LOCK GAN AR MAZIEM BURTIEM.
+  SELECT ABC.VARDS, ABC.UZVARDS, ABC.NOSAUKUMS AS GRUPA
+  FROM SKOLENI AS ABC
+  INNER JOIN GRUPAS AS G ON ABC.GRUPAS_ID = G.ID
+   
+   SELECT SK.VARDS, SK.UZVARDS, SK.NOSAUKUMS AS GRUPA
+  FROM SKOLENI AS SK
+  INNER JOIN GRUPAS AS G ON SK.GRUPAS_ID = G.ID
+  --ISLAICIGI PARVERS GAROS NOSAUKUMUS SAISINAJUMOS.
+  -- VAR IZMANTOT JEBKADU SAISINAJUMU.
